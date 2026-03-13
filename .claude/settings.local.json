@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node:*)",
+      "Bash(npm list:*)",
+      "Bash(mv:*)",
+      "Bash(npx create-next-app@latest:*)",
+      "Read(//tmp/**)",
+      "Bash(cp -r ./* .eslintrc* .gitignore /c/Users/gonni/ClaudeCode/SoccerGuideWebsite/)",
+      "Bash(cp -r ./.git /c/Users/gonni/ClaudeCode/SoccerGuideWebsite/)",
+      "Bash(cp:*)",
+      "Bash(npm install:*)",
+      "Bash(npx shadcn@latest:*)"
+    ]
+  }
+}
