@@ -10,7 +10,14 @@
       "Bash(cp -r ./.git /c/Users/gonni/ClaudeCode/SoccerGuideWebsite/)",
       "Bash(cp:*)",
       "Bash(npm install:*)",
-      "Bash(npx shadcn@latest:*)"
+      "Bash(npx shadcn@latest:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run:*)",
+      "Bash(ls:*)",
+      "Bash(ls C:\\\\Users\\\\gonni\\\\ClaudeCode\\\\SoccerGuideWebsite\\\\src\\\\app\\\\\\(auth\\):*)",
+      "Bash(grep:*)",
+      "Bash(npx drizzle-kit:*)",
+      "Bash(echo:*)"
     ]
   }
 }
