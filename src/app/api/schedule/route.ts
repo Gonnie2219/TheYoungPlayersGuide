@@ -58,6 +58,27 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
+  const validEventTypes = ["team_practice", "game", "individual_training", "rest"];
+  const validRecurrences = ["one_time", "weekly"];
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  const timeRegex = /^\d{2}:\d{2}$/;
+
+  if (!validEventTypes.includes(eventType)) {
+    return NextResponse.json({ error: "Invalid eventType" }, { status: 400 });
+  }
+  if (recurrence && !validRecurrences.includes(recurrence)) {
+    return NextResponse.json({ error: "Invalid recurrence" }, { status: 400 });
+  }
+  if (!dateRegex.test(date)) {
+    return NextResponse.json({ error: "Invalid date format, use YYYY-MM-DD" }, { status: 400 });
+  }
+  if (!timeRegex.test(startTime) || !timeRegex.test(endTime)) {
+    return NextResponse.json({ error: "Invalid time format, use HH:MM" }, { status: 400 });
+  }
+  if (dayOfWeek != null && (typeof dayOfWeek !== "number" || dayOfWeek < 0 || dayOfWeek > 6)) {
+    return NextResponse.json({ error: "Invalid dayOfWeek, must be 0-6" }, { status: 400 });
+  }
+
   await db.insert(scheduleEvent).values({
     id: crypto.randomUUID(),
     userId: session.user.id,

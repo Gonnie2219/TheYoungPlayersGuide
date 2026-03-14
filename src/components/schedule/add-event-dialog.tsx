@@ -61,7 +61,7 @@ export function AddEventDialog({ onCreated }: { onCreated: () => void }) {
         body: JSON.stringify({
           eventType,
           title,
-          date: recurrence === "weekly" ? date : date,
+          date,
           startTime,
           endTime,
           recurrence,

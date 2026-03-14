@@ -78,7 +78,7 @@ export function recommendMeals(params: {
 
   // Deterministic daily variety: use day-of-year as seed
   const now = new Date();
-  const startOfYear = new Date(now.getFullYear(), 0, 0);
+  const startOfYear = new Date(now.getFullYear(), 0, 1);
   const dayOfYear = Math.floor((now.getTime() - startOfYear.getTime()) / 86400000);
 
   const meals: Meal[] = [];
