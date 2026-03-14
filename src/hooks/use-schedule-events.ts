@@ -6,12 +6,14 @@ import type { ScheduleEvent } from "@/types";
 export function useScheduleEvents(weekOffset: number) {
   const [events, setEvents] = useState<ScheduleEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [fetchKey, setFetchKey] = useState(0);
 
   const refetch = useCallback(() => setFetchKey((k) => k + 1), []);
 
   useEffect(() => {
     setLoading(true);
+    setError(null);
 
     const today = new Date();
     const dayOfWeek = today.getDay(); // 0=Sun
@@ -25,11 +27,18 @@ export function useScheduleEvents(weekOffset: number) {
     const toStr = sunday.toISOString().split("T")[0];
 
     fetch(`/api/schedule?from=${fromStr}&to=${toStr}`)
-      .then((res) => (res.ok ? res.json() : []))
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load schedule");
+        return res.json();
+      })
       .then((data) => setEvents(data))
-      .catch(() => setEvents([]))
+      .catch((err) => {
+        console.error("Schedule fetch error:", err);
+        setError("Could not load schedule");
+        setEvents([]);
+      })
       .finally(() => setLoading(false));
   }, [weekOffset, fetchKey]);
 
-  return { events, loading, refetch };
+  return { events, loading, error, refetch };
 }

@@ -113,20 +113,20 @@ export function recommendDrills(params: {
 
   const selected: Drill[] = [];
   const areas = Array.from(byArea.keys());
+  const remainingAreas = new Set(areas);
 
   // Round-robin pick from each area
   let areaIndex = 0;
-  while (selected.length < cap && areas.length > 0) {
-    const area = areas[areaIndex % areas.length];
-    const areaList = byArea.get(area)!;
-    if (areaList.length > 0) {
+  while (selected.length < cap && remainingAreas.size > 0) {
+    const areaKeys = Array.from(remainingAreas);
+    const area = areaKeys[areaIndex % areaKeys.length];
+    const areaList = byArea.get(area);
+    if (areaList && areaList.length > 0) {
       selected.push(areaList.shift()!);
+      areaIndex++;
     } else {
-      areas.splice(areaIndex % areas.length, 1);
-      if (areas.length === 0) break;
-      continue;
+      remainingAreas.delete(area);
     }
-    areaIndex++;
   }
 
   return { drills: selected, daySummary, dayType, readiness };
