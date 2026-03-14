@@ -80,6 +80,7 @@ src/
 | `user_profile` | Player profile (1 per user) | id, userId (FK unique), ageGroup, gender, playingLevel, onboardingCompleted |
 | `goal` | User goals (1–3 per user) | id, userId (FK), text |
 | `daily_log` | Daily wellness log entries | id, userId (FK), date, sleepHours, sleepQuality, energy, mood, soreness, hadTraining, hadMatch, hydration, notes |
+| `schedule_event` | Team schedule events | id, userId (FK), eventType, title, date, startTime, endTime, recurrence, dayOfWeek, location, opponent, notes |
 
 All IDs are `text` (Better Auth generates string UUIDs). Foreign keys cascade on delete.
 
@@ -106,6 +107,7 @@ All IDs are `text` (Better Auth generates string UUIDs). Foreign keys cascade on
 | `/api/auth/[...all]` | All | Better Auth catch-all handler |
 | `/api/profile` | GET, POST | Get or create user profile + goals |
 | `/api/daily-log` | GET, POST | Get or upsert daily wellness log — supports `?date=` (single) and `?from=&to=` (range) |
+| `/api/schedule` | GET, POST, DELETE | Schedule events — GET `?from=&to=` returns one-time + recurring events; POST creates; DELETE `?id=` removes |
 
 All custom API routes use `auth.api.getSession({ headers: await headers() })` for server-side auth.
 
@@ -122,7 +124,7 @@ All custom API routes use `auth.api.getSession({ headers: await headers() })` fo
   1. Auth guard: `useSession()` — no session → `/login`
   2. Onboarding guard: fetch `/api/profile` — 404 → `/onboarding`
   - Populates Zustand store with profile data after passing guards
-- **Sub-pages**: `/dashboard` (home), `/dashboard/log`, `/dashboard/plans`, `/dashboard/progress`
+- **Sub-pages**: `/dashboard` (home), `/dashboard/log`, `/dashboard/plans`, `/dashboard/progress`, `/dashboard/schedule`, `/dashboard/drills`, `/dashboard/meals`
 
 ## Dashboard Pages
 
@@ -132,7 +134,7 @@ All custom API routes use `auth.api.getSession({ headers: await headers() })` fo
 - **Wellness Score**: Average of (sleepQuality + energy + mood + soreness) / 4 across 7 days, displayed as X/5
 - **Streak**: Consecutive days backwards from today with a log entry
 - **Charts**: `SleepTrendChart` (7-day line) + `TrainingLoadChart` (7-day bars)
-- **Quick Nav**: Cards linking to Log, Plans, Progress
+- **Quick Nav**: Cards linking to Log, Plans, Schedule, Drills, Meals, Progress (3-column grid)
 - **Empty state**: Friendly message + button when no logs exist
 
 ### Training Plans (`/dashboard/plans`)
@@ -147,6 +149,36 @@ All custom API routes use `auth.api.getSession({ headers: await headers() })` fo
 - **Goal progress**: Keyword-based matching (sleep, nutrition, injury, mental, training, recovery) → percentage bars
 - **Hydration distribution**: Horizontal segmented bar showing poor/ok/good/great counts
 
+### Drills (`/dashboard/drills`)
+- **Data**: Static drill library (35 drills in `src/data/drill-library.ts`) — no database tables
+- **Recommendation engine**: Pure function in `src/lib/recommend-drills.ts` — filters drills by age group, playing level, day type (from schedule), and readiness (from wellness log)
+- **Day type detection**: game > rest > practice > individual training > free — based on today's schedule events
+- **Readiness score**: Average of energy + inverted soreness from today's log → low/moderate/high
+- **Intensity filtering**: Game/rest days → low only; practice → low/moderate; training/free → all (high excluded if low readiness)
+- **Difficulty filtering**: Recreational → beginner; club → beginner+intermediate; academy/elite → all
+- **Tabs**: "Today's Recommendation" (default) shows day summary + personalized drill cards; "Browse Library" shows all 35 drills with skill area filter badges
+- **Skill areas**: Technical (8), Tactical (7), Physical (7), Coordination (7), Recovery (6)
+- **Components**: `DrillCard` (`src/components/drills/drill-card.tsx`) — card with skill area badge, difficulty badge, duration, equipment, description, coaching points
+
+### Meals (`/dashboard/meals`)
+- **Data**: Static meal library (30 meals in `src/data/meal-library.ts`) — no database tables
+- **Recommendation engine**: Pure function in `src/lib/recommend-meals.ts` — selects meals by day type (from schedule), readiness (from wellness log), and age group
+- **Day type detection**: Reuses `determineDayType` and `determineReadiness` from `src/lib/recommend-drills.ts`
+- **Timing slots**: Game day → breakfast, morning_snack, pre_game, halftime, post_game, dinner; Practice/Training → breakfast, morning_snack, lunch, afternoon_snack, dinner; Rest/Free → breakfast, lunch, afternoon_snack, dinner
+- **Low readiness adjustment**: Drops morning_snack on non-game days
+- **Meal selection**: Filters by timing slot and age group, prefers tag-matched meals (low readiness → light/recovery; high → high-carb/energy-boost), deterministic daily variety via `dayOfYear % count`
+- **Tabs**: "Today's Meal Plan" (default) shows day summary + meal cards in time-of-day order; "Browse Meals" shows all 30 meals with timing filter badges
+- **Meal timings**: Breakfast (4), Morning Snack (3), Lunch (4), Afternoon Snack (3), Dinner (4), Pre-Game (4), Halftime (4), Post-Game (4)
+- **Components**: `MealCard` (`src/components/meals/meal-card.tsx`) — card with timing badge, tag badges, prep time, ingredient count, description, ingredients list, portion note
+
+### Schedule (`/dashboard/schedule`)
+- **Weekly calendar**: 7-column grid (Mon–Sun) with week navigation (prev/next), stacks vertically on mobile
+- **Events**: Color-coded cards — green (practice), red (game), blue (individual training), gray (rest)
+- **Recurrence**: Events can be one-time (matched by date) or weekly (matched by dayOfWeek, shown every week)
+- **Add Event**: Dialog form for creating events with type, title, recurrence, date/day, times, location, opponent, notes
+- **Delete**: Remove entire event record (no edit, no single-occurrence delete)
+- **Components**: `AddEventDialog` (`src/components/schedule/add-event-dialog.tsx`), `WeeklyCalendar` (`src/components/schedule/weekly-calendar.tsx`)
+
 ### Chart Components (`src/components/dashboard/`)
 
 | Component | Chart Type | Props |
@@ -160,6 +192,7 @@ All charts use `var(--color-chart-N)` CSS variables for theming.
 ### Shared Hook
 
 - `useDailyLogs(days)` in `src/hooks/use-daily-logs.ts` — computes date range, fetches `GET /api/daily-log?from=&to=`, returns `{ logs, loading }`
+- `useScheduleEvents(weekOffset)` in `src/hooks/use-schedule-events.ts` — computes Mon–Sun range for given week offset, fetches `GET /api/schedule?from=&to=`, returns `{ events, loading, refetch }`
 
 ## Daily Log
 

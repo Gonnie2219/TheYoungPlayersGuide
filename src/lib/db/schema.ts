@@ -82,6 +82,24 @@ export const dailyLog = pgTable("daily_log", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const scheduleEvent = pgTable("schedule_event", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  eventType: text("event_type").notNull(), // "team_practice" | "game" | "individual_training" | "rest"
+  title: text("title").notNull(),
+  date: text("date").notNull(), // "YYYY-MM-DD"
+  startTime: text("start_time").notNull(), // "HH:MM"
+  endTime: text("end_time").notNull(), // "HH:MM"
+  recurrence: text("recurrence").notNull().default("one_time"), // "one_time" | "weekly"
+  dayOfWeek: integer("day_of_week"), // 0=Sun..6=Sat, for weekly events
+  location: text("location"),
+  opponent: text("opponent"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const verification = pgTable("verification", {
   id: text("id").primaryKey(),
   identifier: text("identifier").notNull(),

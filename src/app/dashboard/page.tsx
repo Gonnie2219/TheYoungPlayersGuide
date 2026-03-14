@@ -6,7 +6,7 @@ import { useUserProfileStore } from "@/stores/user-profile-store";
 import { SleepTrendChart } from "@/components/dashboard/sleep-trend-chart";
 import { TrainingLoadChart } from "@/components/dashboard/training-load-chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ClipboardList, BarChart3, TrendingUp, Target } from "lucide-react";
+import { ClipboardList, BarChart3, TrendingUp, Target, Calendar, Dumbbell, UtensilsCrossed } from "lucide-react";
 
 export default function DashboardPage() {
   const { logs, loading } = useDailyLogs(7);
@@ -141,7 +141,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Row 3: Streak + Quick Nav */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Streak</CardTitle>
@@ -173,6 +173,42 @@ export default function DashboardPage() {
               <div>
                 <p className="font-medium">Plans</p>
                 <p className="text-sm text-muted-foreground">Weekly view</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/dashboard/schedule" className="block">
+          <Card className="h-full transition-colors hover:bg-muted/50">
+            <CardContent className="flex items-center gap-3 pt-6">
+              <Calendar className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium">Schedule</p>
+                <p className="text-sm text-muted-foreground">Team calendar</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/dashboard/drills" className="block">
+          <Card className="h-full transition-colors hover:bg-muted/50">
+            <CardContent className="flex items-center gap-3 pt-6">
+              <Dumbbell className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium">Drills</p>
+                <p className="text-sm text-muted-foreground">Today&apos;s picks</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/dashboard/meals" className="block">
+          <Card className="h-full transition-colors hover:bg-muted/50">
+            <CardContent className="flex items-center gap-3 pt-6">
+              <UtensilsCrossed className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium">Meals</p>
+                <p className="text-sm text-muted-foreground">Daily meal plan</p>
               </div>
             </CardContent>
           </Card>

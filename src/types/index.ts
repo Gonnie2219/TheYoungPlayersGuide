@@ -27,6 +27,25 @@ export interface DailyLog {
   createdAt: string;
 }
 
+export type EventType = "team_practice" | "game" | "individual_training" | "rest";
+export type Recurrence = "one_time" | "weekly";
+
+export interface ScheduleEvent {
+  id: string;
+  userId: string;
+  eventType: EventType;
+  title: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  recurrence: Recurrence;
+  dayOfWeek: number | null;
+  location: string | null;
+  opponent: string | null;
+  notes: string | null;
+  createdAt: string;
+}
+
 export interface Citation {
   id: string;
   authors: string[];

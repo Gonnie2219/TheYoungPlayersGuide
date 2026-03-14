@@ -17,7 +17,10 @@
       "Bash(ls C:\\\\Users\\\\gonni\\\\ClaudeCode\\\\SoccerGuideWebsite\\\\src\\\\app\\\\\\(auth\\):*)",
       "Bash(grep:*)",
       "Bash(npx drizzle-kit:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(gh repo:*)",
+      "Bash(npx vercel:*)",
+      "Bash(timeout 15 npx next:*)"
     ]
   }
 }
